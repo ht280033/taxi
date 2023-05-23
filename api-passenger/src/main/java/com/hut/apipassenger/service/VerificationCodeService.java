@@ -34,9 +34,9 @@ public class VerificationCodeService {
 
         //存入Redis
         //key,value,ttl
-        String key = verificationCodePrefix+passengerPhone;
+        String key = generatorKeyByPassengerPhone(passengerPhone);
         redisTemplate.opsForValue().set(key,numberCode+"",2, TimeUnit.MINUTES);
-        return ResponseResult.success();
+        return numberCodeResponse;
     }
 
     /**
@@ -49,12 +49,17 @@ public class VerificationCodeService {
         //根据手机号获取验证码
 
         //校验验证码
-
+        String key = generatorKeyByPassengerPhone(passengerPhone);
+        String codeRedis = redisTemplate.opsForValue().get(key);
         //判断原来是否存在此用户，判断是进行插入/更新
 
         //办法token令牌
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setToken("token");
         return ResponseResult.success(tokenResponse);
+    }
+
+    private String generatorKeyByPassengerPhone(String passengerPhone){
+        return  verificationCodePrefix+passengerPhone;
     }
 }
