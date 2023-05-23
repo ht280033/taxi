@@ -1,6 +1,10 @@
 package com.hut.common.constat;
 
 public enum CommonStatusEnum {
+
+    //验证码不正确
+    VERIFICATION_CODE_ERROR(1099,"验证码不正确或已过期"),
+
     //成功
     SUCCESS(1,"success"),
     //失败

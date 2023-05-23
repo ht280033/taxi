@@ -38,7 +38,7 @@ public class ResponseResult<T> {
      * @return
      * @param <T>
      */
-    public static <T> ResponseResult fail(int code,String message){
+    public static ResponseResult fail(int code,String message){
         return new ResponseResult().setCode(code).setMessage(message);
     }
 

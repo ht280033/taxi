@@ -1,10 +1,11 @@
 package com.hut.apipassenger.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.hut.apipassenger.remote.ServiceVerificationCodeClient;
+import com.hut.common.constat.CommonStatusEnum;
 import com.hut.common.dto.ResponseResult;
 import com.hut.common.response.NumberCodeResponse;
 import com.hut.common.response.TokenResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,12 @@ public class VerificationCodeService {
         String key = generatorKeyByPassengerPhone(passengerPhone);
         String codeRedis = redisTemplate.opsForValue().get(key);
         //判断原来是否存在此用户，判断是进行插入/更新
-
+        if(StringUtils.isBlank(codeRedis)){
+            return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(), CommonStatusEnum.VERIFICATION_CODE_ERROR.getValue());
+        }
+        if(!codeRedis.equals(verificationCode)){
+            return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(), CommonStatusEnum.VERIFICATION_CODE_ERROR.getValue());
+        }
         //办法token令牌
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setToken("token");

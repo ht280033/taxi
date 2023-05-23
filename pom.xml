@@ -16,6 +16,7 @@
     <modules>
         <module>api-passenger</module>
         <module>internal-common</module>
+        <module>service-passerger-user</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -35,6 +36,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.26</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
     </dependencies>
 
