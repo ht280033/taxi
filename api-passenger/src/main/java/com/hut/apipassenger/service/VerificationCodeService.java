@@ -1,22 +1,32 @@
 package com.hut.apipassenger.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson2.JSON;
+import com.hut.apipassenger.remote.ServiceVerificationCodeClient;
+import com.hut.common.dto.ResponseResult;
+import com.hut.common.response.NumberCodeResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class VerificationCodeService {
-    public String generateVerificationCode(String passengerPhone){
+
+    @Autowired
+    private ServiceVerificationCodeClient serviceVerificationCodeClient;
+
+    public ResponseResult generateVerificationCode(String passengerPhone){
 
         System.out.println("调用验证码服务");
-        Integer code = 1;
 
+        ResponseResult<NumberCodeResponse> numberCodeResponse = serviceVerificationCodeClient.getNumberCode(6);
+        int numberCode = numberCodeResponse.getData().getNumberCode();
+
+        System.out.println("numberCode:"+numberCode);
         //存入Redis
         System.out.println("存入redis");
 
         JSONObject result = new JSONObject();
-        result.put("code", code);
+        result.put("code", numberCodeResponse.getData().getNumberCode());
         result.put("message","sucess");
-        return result.toJSONString();
+        return ResponseResult.success(numberCode);
     }
 }
