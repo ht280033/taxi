@@ -11,11 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class NumberCodeController {
     @GetMapping("/numberCode/{size}")
     public ResponseResult numberCode(@PathVariable("size") int size) {
-        System.out.println("size:"+size);
         //生成验证码
         double mathRandom = (Math.random()*9+1) * (Math.pow(10,size-1));
         int numberCode = (int)mathRandom;
-        System.out.println("numberCode："+numberCode);
         NumberCodeResponse response = new NumberCodeResponse();
         response.setNumberCode(numberCode);
         return ResponseResult.success(response);

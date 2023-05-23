@@ -16,7 +16,6 @@ public class VerificationCodeController {
 
     @GetMapping("/verification-code")
     public ResponseResult verificationCode(@RequestBody VerificationCodeDTO verificationCodeDTO){
-        System.out.println("手机号码："+verificationCodeDTO.getPassengerPhone());
         return service.generateVerificationCode(verificationCodeDTO.getPassengerPhone());
     }
 }
