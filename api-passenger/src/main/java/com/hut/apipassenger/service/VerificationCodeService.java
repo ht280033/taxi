@@ -1,8 +1,10 @@
 package com.hut.apipassenger.service;
 
+import com.hut.apipassenger.remote.ServicePassengerUserClient;
 import com.hut.apipassenger.remote.ServiceVerificationCodeClient;
 import com.hut.common.constat.CommonStatusEnum;
 import com.hut.common.dto.ResponseResult;
+import com.hut.common.request.VerificationCodeDTO;
 import com.hut.common.response.NumberCodeResponse;
 import com.hut.common.response.TokenResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +21,9 @@ public class VerificationCodeService {
 
     @Autowired
     private ServiceVerificationCodeClient serviceVerificationCodeClient;
+
+    @Autowired
+    private ServicePassengerUserClient servicePassengerUserClient;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -59,6 +64,10 @@ public class VerificationCodeService {
         if(!codeRedis.equals(verificationCode)){
             return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(), CommonStatusEnum.VERIFICATION_CODE_ERROR.getValue());
         }
+        //调用远程服务判断用户是否存在
+        VerificationCodeDTO verificationCodeDTO = new VerificationCodeDTO();
+        verificationCodeDTO.setPassengerPhone(passengerPhone);
+        servicePassengerUserClient.getNumberCode(verificationCodeDTO);
         //办法token令牌
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setToken("token");

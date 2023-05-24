@@ -17,7 +17,7 @@ public class PassengerUser {
 
     private String passengerName;
 
-    private Boolean passengerGender;
+    private Integer passengerGender;
 
-    private Boolean status;
+    private Integer status = 0;
 }

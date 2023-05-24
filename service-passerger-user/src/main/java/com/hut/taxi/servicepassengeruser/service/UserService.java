@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,7 +24,17 @@ public class UserService {
         LambdaQueryWrapper<PassengerUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PassengerUser::getPassengerPhone,passengerPhone);
         List<PassengerUser> passengerUsers = mapper.selectList(queryWrapper);
-        System.out.println(passengerUsers.toString());
+        //判断用户是否存在
+        if(passengerUsers.isEmpty()){
+            //不存在插入用户
+            PassengerUser user = new PassengerUser();
+            user.setPassengerName("张三");
+            user.setPassengerGender(0);
+            LocalDateTime now = LocalDateTime.now();
+            user.setGmtCreate(now);
+            user.setGmtModified(now);
+            mapper.insert(user);
+        }
         return ResponseResult.success();
     }
 }
