@@ -11,3 +11,9 @@ spring:
     port: 6379
     host: localhost
     database: 0
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/services-passerger-user?characterEncoding=utf-8&serverTimezone=GMT%2B8
+    username: root
+    password: root
+

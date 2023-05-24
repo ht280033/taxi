@@ -1,4 +1,4 @@
-package com.hut.apipassenger.request;
+package com.hut.common.request;
 
 import lombok.Data;
 

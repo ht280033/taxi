@@ -1,8 +1,8 @@
 package com.hut.apipassenger.controller;
 
-import com.hut.apipassenger.request.VerificationCodeDTO;
 import com.hut.apipassenger.service.VerificationCodeService;
 import com.hut.common.dto.ResponseResult;
+import com.hut.common.request.VerificationCodeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
