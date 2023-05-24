@@ -21,6 +21,8 @@ public class VerificationCodeService {
 
     private String verificationCodePrefix = "passenger-verification-code-";
 
+    private String tokenPrefix = "token-";
+
     @Autowired
     private ServiceVerificationCodeClient serviceVerificationCodeClient;
 
@@ -32,10 +34,11 @@ public class VerificationCodeService {
 
     /**
      * 生成验证码并返回
+     *
      * @param passengerPhone
      * @return
      */
-    public ResponseResult generateVerificationCode(String passengerPhone){
+    public ResponseResult generateVerificationCode(String passengerPhone) {
         //调用验证码服务生成验证码
         ResponseResult<NumberCodeResponse> numberCodeResponse = serviceVerificationCodeClient.getNumberCode(6);
         int numberCode = numberCodeResponse.getData().getNumberCode();
@@ -43,41 +46,51 @@ public class VerificationCodeService {
         //存入Redis
         //key,value,ttl
         String key = generatorKeyByPassengerPhone(passengerPhone);
-        redisTemplate.opsForValue().set(key,numberCode+"",2, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key, numberCode + "", 2, TimeUnit.MINUTES);
         return numberCodeResponse;
     }
 
     /**
      * 校验验证码
-     * @param passengerPhone 手机号
+     *
+     * @param passengerPhone   手机号
      * @param verificationCode 验证码
      * @return token令牌
      */
-    public ResponseResult checkVerificationCode(String passengerPhone,String verificationCode){
+    public ResponseResult checkVerificationCode(String passengerPhone, String verificationCode) {
         //根据手机号获取验证码
 
         //校验验证码
         String key = generatorKeyByPassengerPhone(passengerPhone);
         String codeRedis = redisTemplate.opsForValue().get(key);
         //判断原来是否存在此用户，判断是进行插入/更新
-        if(StringUtils.isBlank(codeRedis)){
+        if (StringUtils.isBlank(codeRedis)) {
             return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(), CommonStatusEnum.VERIFICATION_CODE_ERROR.getValue());
         }
-        if(!codeRedis.equals(verificationCode)){
+        if (!codeRedis.equals(verificationCode)) {
             return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(), CommonStatusEnum.VERIFICATION_CODE_ERROR.getValue());
         }
         //调用远程服务判断用户是否存在
         VerificationCodeDTO verificationCodeDTO = new VerificationCodeDTO();
         verificationCodeDTO.setPassengerPhone(passengerPhone);
         servicePassengerUserClient.getNumberCode(verificationCodeDTO);
+        //颁发token令牌
         String token = JwtUtils.generateToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
-        //办法token令牌
+
+        //将token值保存到redis
+        String tokenKey = generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
+        redisTemplate.opsForValue().set(tokenKey,token,30,TimeUnit.DAYS);
+
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setToken(token);
         return ResponseResult.success(tokenResponse);
     }
 
-    private String generatorKeyByPassengerPhone(String passengerPhone){
-        return  verificationCodePrefix+passengerPhone;
+    private String generatorKeyByPassengerPhone(String passengerPhone) {
+        return verificationCodePrefix + passengerPhone;
+    }
+
+    private String generatorTokenKey(String phone, String identity) {
+        return tokenPrefix + phone + "-" + identity;
     }
 }

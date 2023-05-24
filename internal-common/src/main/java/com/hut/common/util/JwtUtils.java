@@ -35,7 +35,7 @@ public class JwtUtils {
         //整合map数据
         map.forEach(builder::withClaim);
         //整合过期时间
-        builder.withExpiresAt(time);
+        //builder.withExpiresAt(time); 用redis来做有效期
 
         //生成token
         return builder.sign(Algorithm.HMAC256(SIGN));
@@ -50,4 +50,8 @@ public class JwtUtils {
         return result;
     }
 
+    public static void main(String[] args) {
+        String s = generateToken("18569403691", "1");
+        System.out.println(s);
+    }
 }
