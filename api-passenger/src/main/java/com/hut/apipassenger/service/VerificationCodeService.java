@@ -3,10 +3,12 @@ package com.hut.apipassenger.service;
 import com.hut.apipassenger.remote.ServicePassengerUserClient;
 import com.hut.apipassenger.remote.ServiceVerificationCodeClient;
 import com.hut.common.constat.CommonStatusEnum;
+import com.hut.common.constat.IdentityConstants;
 import com.hut.common.dto.ResponseResult;
 import com.hut.common.request.VerificationCodeDTO;
 import com.hut.common.response.NumberCodeResponse;
 import com.hut.common.response.TokenResponse;
+import com.hut.common.util.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -68,9 +70,10 @@ public class VerificationCodeService {
         VerificationCodeDTO verificationCodeDTO = new VerificationCodeDTO();
         verificationCodeDTO.setPassengerPhone(passengerPhone);
         servicePassengerUserClient.getNumberCode(verificationCodeDTO);
+        String token = JwtUtils.generateToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
         //办法token令牌
         TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setToken("token");
+        tokenResponse.setToken(token);
         return ResponseResult.success(tokenResponse);
     }
 

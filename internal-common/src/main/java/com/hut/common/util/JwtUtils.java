@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.hut.common.dto.TokenResult;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -15,12 +16,15 @@ public class JwtUtils {
     //盐
     private static final String SIGN = "CPFhut!@#SS";
 
-    private static final String JWT_KEY = "passengerPhone";
+    private static final String JWT_KEY_PHONE = "hone";
+
+    private static final String JWT_KEY_IDENTITY = "identity";
 
     //生成Token
-    private static String generateToken(String passengerPhone){
+    public static String generateToken(String phone, String identity){
         Map<String, String> map = new HashMap<>();
-        map.put(JWT_KEY, passengerPhone);
+        map.put(JWT_KEY_PHONE, phone);
+        map.put(JWT_KEY_IDENTITY,identity);
         //token过期时间
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE,1);
@@ -34,15 +38,16 @@ public class JwtUtils {
         builder.withExpiresAt(time);
 
         //生成token
-        String token = builder.sign(Algorithm.HMAC256(SIGN));
-
-        return token;
+        return builder.sign(Algorithm.HMAC256(SIGN));
     }
 
     //解析Token
-    public static String parseToken(String token){
+    public static TokenResult parseToken(String token){
         DecodedJWT verify = JWT.require(Algorithm.HMAC256(SIGN)).build().verify(token);
-        return verify.getClaim(JWT_KEY).asString();
+        TokenResult result = new TokenResult();
+        result.setHone(verify.getClaim(JWT_KEY_PHONE).asString());
+        result.setIdentity(verify.getClaim(JWT_KEY_IDENTITY).asString());
+        return result;
     }
 
 }
