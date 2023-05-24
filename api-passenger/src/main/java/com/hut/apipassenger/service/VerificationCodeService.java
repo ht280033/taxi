@@ -4,6 +4,7 @@ import com.hut.apipassenger.remote.ServicePassengerUserClient;
 import com.hut.apipassenger.remote.ServiceVerificationCodeClient;
 import com.hut.common.constat.CommonStatusEnum;
 import com.hut.common.constat.IdentityConstants;
+import com.hut.common.constat.TokenConstants;
 import com.hut.common.dto.ResponseResult;
 import com.hut.common.request.VerificationCodeDTO;
 import com.hut.common.response.NumberCodeResponse;
@@ -72,14 +73,19 @@ public class VerificationCodeService {
         verificationCodeDTO.setPassengerPhone(passengerPhone);
         servicePassengerUserClient.getNumberCode(verificationCodeDTO);
         //颁发token令牌
-        String token = JwtUtils.generateToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
+        String accessToken = JwtUtils.generateToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY, TokenConstants.ACCESS_TOKEN_TYPE);
+        String refreshToken = JwtUtils.generateToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY,TokenConstants.REFRESH_TOKEN_TYPE);
 
         //将token值保存到redis
-        String tokenKey = RedisPrefixUtils.generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
-        redisTemplate.opsForValue().set(tokenKey,token,30,TimeUnit.DAYS);
+        String accessTokenKey = RedisPrefixUtils.generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY, TokenConstants.ACCESS_TOKEN_TYPE);
+        redisTemplate.opsForValue().set(accessTokenKey,accessToken,30,TimeUnit.DAYS);
+
+        String refreshTokenKey = RedisPrefixUtils.generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY, TokenConstants.REFRESH_TOKEN_TYPE);
+        redisTemplate.opsForValue().set(refreshTokenKey,accessToken,31,TimeUnit.DAYS);
 
         TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setToken(token);
+        tokenResponse.setAccessToken(accessToken);
+        tokenResponse.setRefreshToken(refreshToken);
         return ResponseResult.success(tokenResponse);
     }
 }

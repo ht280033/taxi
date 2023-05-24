@@ -3,6 +3,7 @@ package com.hut.apipassenger.interceptor;
 import com.auth0.jwt.exceptions.AlgorithmMismatchException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.hut.common.constat.TokenConstants;
 import com.hut.common.dto.ResponseResult;
 import com.hut.common.dto.TokenResult;
 import com.hut.common.util.JwtUtils;
@@ -58,8 +59,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         }else {
             String phone = tokenResult.getPhone();
             String identity = tokenResult.getIdentity();
-
-            String tokenKey = RedisPrefixUtils.generatorTokenKey(phone, identity);
+            String tokenKey = RedisPrefixUtils.generatorTokenKey(phone, identity, TokenConstants.ACCESS_TOKEN_TYPE);
 
             String redisToken = redisTemplate.opsForValue().get(tokenKey);
 
