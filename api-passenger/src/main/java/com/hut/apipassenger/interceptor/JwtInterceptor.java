@@ -31,27 +31,8 @@ public class JwtInterceptor implements HandlerInterceptor {
 
 
         String token = request.getHeader("Authorization");
-        TokenResult tokenResult = null;
-        try {
-            tokenResult = JwtUtils.parseToken(token);
-        }catch (SignatureVerificationException e){
-            resultString = "token sign error";
-            result = false;
-        }catch (TokenExpiredException e){
-            resultString = "token timeout";
-            result = false;
-        }catch (AlgorithmMismatchException e){
-            resultString = "token AlgorithmMismatchException";
-            result = false;
-        }catch (Exception e){
-            resultString = "token invalid";
-            result = false;
-        }
+        TokenResult tokenResult = JwtUtils.checkToken(token);
 
-        if(!result){
-            PrintWriter out = response.getWriter();
-            out.println(JSONObject.fromObject(ResponseResult.fail(resultString)).toString());
-        }
         //如果token编译通过，则从redis中拿token进行校验，一致则通过，否则不通过
         if(Objects.isNull(tokenResult)){
             resultString = "token invalid";
@@ -63,15 +44,14 @@ public class JwtInterceptor implements HandlerInterceptor {
 
             String redisToken = redisTemplate.opsForValue().get(tokenKey);
 
-            if(StringUtils.isBlank(redisToken)){
+            if((StringUtils.isBlank(redisToken)) || !redisToken.trim().equals(token.trim())){
                 resultString = "token invalid";
                 result = false;
-            }else {
-                if(!redisToken.trim().equals(token.trim())){
-                    resultString = "token invalid";
-                    result = false;
-                }
             }
+        }
+        if(!result){
+            PrintWriter out = response.getWriter();
+            out.println(JSONObject.fromObject(ResponseResult.fail(resultString)).toString());
         }
         return result;
     }
