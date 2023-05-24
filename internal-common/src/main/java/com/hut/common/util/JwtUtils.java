@@ -16,7 +16,7 @@ public class JwtUtils {
     //盐
     private static final String SIGN = "CPFhut!@#SS";
 
-    private static final String JWT_KEY_PHONE = "hone";
+    private static final String JWT_KEY_PHONE = "phone";
 
     private static final String JWT_KEY_IDENTITY = "identity";
 
@@ -45,7 +45,7 @@ public class JwtUtils {
     public static TokenResult parseToken(String token){
         DecodedJWT verify = JWT.require(Algorithm.HMAC256(SIGN)).build().verify(token);
         TokenResult result = new TokenResult();
-        result.setHone(verify.getClaim(JWT_KEY_PHONE).asString());
+        result.setPhone(verify.getClaim(JWT_KEY_PHONE).asString());
         result.setIdentity(verify.getClaim(JWT_KEY_IDENTITY).asString());
         return result;
     }

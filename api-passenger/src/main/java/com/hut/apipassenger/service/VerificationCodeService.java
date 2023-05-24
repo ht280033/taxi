@@ -9,6 +9,7 @@ import com.hut.common.request.VerificationCodeDTO;
 import com.hut.common.response.NumberCodeResponse;
 import com.hut.common.response.TokenResponse;
 import com.hut.common.util.JwtUtils;
+import com.hut.common.util.RedisPrefixUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -18,10 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class VerificationCodeService {
-
-    private String verificationCodePrefix = "passenger-verification-code-";
-
-    private String tokenPrefix = "token-";
 
     @Autowired
     private ServiceVerificationCodeClient serviceVerificationCodeClient;
@@ -45,7 +42,7 @@ public class VerificationCodeService {
 
         //存入Redis
         //key,value,ttl
-        String key = generatorKeyByPassengerPhone(passengerPhone);
+        String key = RedisPrefixUtils.generatorKeyByPassengerPhone(passengerPhone);
         redisTemplate.opsForValue().set(key, numberCode + "", 2, TimeUnit.MINUTES);
         return numberCodeResponse;
     }
@@ -61,7 +58,7 @@ public class VerificationCodeService {
         //根据手机号获取验证码
 
         //校验验证码
-        String key = generatorKeyByPassengerPhone(passengerPhone);
+        String key = RedisPrefixUtils.generatorKeyByPassengerPhone(passengerPhone);
         String codeRedis = redisTemplate.opsForValue().get(key);
         //判断原来是否存在此用户，判断是进行插入/更新
         if (StringUtils.isBlank(codeRedis)) {
@@ -78,19 +75,11 @@ public class VerificationCodeService {
         String token = JwtUtils.generateToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
 
         //将token值保存到redis
-        String tokenKey = generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
+        String tokenKey = RedisPrefixUtils.generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
         redisTemplate.opsForValue().set(tokenKey,token,30,TimeUnit.DAYS);
 
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setToken(token);
         return ResponseResult.success(tokenResponse);
-    }
-
-    private String generatorKeyByPassengerPhone(String passengerPhone) {
-        return verificationCodePrefix + passengerPhone;
-    }
-
-    private String generatorTokenKey(String phone, String identity) {
-        return tokenPrefix + phone + "-" + identity;
     }
 }
